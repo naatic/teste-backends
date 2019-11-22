@@ -8,6 +8,12 @@ Você receberá uma lista de eventos com dados de propostas de empréstimo, gara
 
 Uma proposta é o modelo que contém as informações de um empréstimo. Cada proposta deve conter múltiplos imóveis de garantia. A proposta também deve conter múltiplos proponentes, que são as pessoas envolvidas no contrato de empréstimo.
 
+Para começar o desafio:
+
+1. Clone este repositório
+2. Escolha sua linguagem de preferência e edite o arquivo respectivo. Por exemplo, se você quer resolver em Ruby, o arquivo é `./ruby/solution.rb`; e se for Java `./java/solution.java`
+3. Para testar sua solução, utilize os inputs e outputs definidos em `./input/*.txt` e `./output/*.txt`
+
 ## Regras
 
 *   O valor do empréstimo deve estar entre R$ 30.000,00 e R$ 3.000.000,00
