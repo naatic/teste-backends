@@ -12,7 +12,7 @@ Para começar o desafio:
 
 1. Clone este repositório
 2. Escolha sua linguagem de preferência e edite o arquivo respectivo. Por exemplo, se você quer resolver em Ruby, o arquivo é `./ruby/solution.rb`; e se for Java `./java/solution.java`
-3. Para testar sua solução, utilize os inputs e outputs definidos em `./input/*.txt` e `./output/*.txt`
+3. Para testar sua solução, utilize os inputs e outputs definidos em `./test/input/*.txt` e `./test/output/*.txt`
 
 ## Regras
 
