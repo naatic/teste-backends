@@ -1,16 +1,134 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import dto.ProponentDTO;
+import dto.ProposalDTO;
+import dto.WarrantyDTO;
+import service.DTOPopulationService;
 
 public class Solution {
-  // Essa funÃ§Ã£o recebe uma lista de mensagens, por exemplo:
-  // [
-  //   "72ff1d14-756a-4549-9185-e60e326baf1b","proposal","created","2019-11-11T14:28:01Z","80921e5f-4307-4623-9ddb-5bf826a31dd7","1141424.0","240"
-  //   "af745f6d-d5c0-41e9-b04f-ee524befa425","warranty","added","2019-11-11T14:28:01Z","80921e5f-4307-4623-9ddb-5bf826a31dd7","31c1dd83-8fb7-44ff-8cb7-947e604f6293","3245356.0","DF"
-  //   "450951ee-a38d-475c-ac21-f22b4566fb29","warranty","added","2019-11-11T14:28:01Z","80921e5f-4307-4623-9ddb-5bf826a31dd7","c8753500-1982-4003-8287-3b46c75d4803","3413113.45","DF"
-  //   "66882b68-baa4-47b1-9cc7-7db9c2d8f823","proponent","added","2019-11-11T14:28:01Z","80921e5f-4307-4623-9ddb-5bf826a31dd7","3f52890a-7e9a-4447-a19b-bb5008a09672","Ismael Streich Jr.","42","62615.64","true"
-  // ]
-  // Complete a funÃ§Ã£o para retornar uma String com os IDs das propostas vÃ¡lidas no seguinte formato (separado por vÃ­rgula):
-  // "52f0b3f2-f838-4ce2-96ee-9876dd2c0cf6,51a41350-d105-4423-a9cf-5a24ac46ae84,50cedd7f-44fd-4651-a4ec-f55c742e3477"
-  public static String processMessages(List<String> messages) {
-    return "";
-  }
+
+	private static DTOPopulationService dtoPopulationService = new DTOPopulationService();
+	private static final String PARANA = "PR";
+	private static final String SANTA_CATARINA = "SC";
+	private static final String RIO_GRANDE_DO_SUL = "RS";
+  
+	/**
+	 * Método que inicia o processo the validação das mensagens
+	 * @param List<String>
+	 * */
+	public static String processMessages(List<String> messages) {
+		
+		List<String> listValidIDs = new ArrayList<String>();
+		
+		for (String message : messages) {
+			if(message.contains("proposal")) {
+				ProposalDTO proposalDTO = dtoPopulationService.populateProposalDTO(message, messages);
+				boolean isValid = processProposalMessage(proposalDTO);
+				
+				if(isValid) {
+					listValidIDs.add(proposalDTO.getProposalId());
+				}
+			}
+			
+		}
+	  
+		String response = listValidIDs.toString().replace("[", "").replace("]", "").replaceAll(" ", "");
+
+		return response; //Lista de IDs das PROPOSTAS válidas
+	}
+
+	
+	/**
+	 * Executa as validações necessárias para as mensagens que sejam the Proposal
+	 * @param ProposalDTO
+	 * */
+	private static boolean processProposalMessage(ProposalDTO proposalDTO) {
+		
+		if(proposalDTO.getProposalLoanValue() < 30000 || proposalDTO.getProposalLoanValue() > 3000000) { 
+			return false; //• O valor do empréstimo deve estar entre R$ 30.000,00 e R$ 3.000.000,00
+		}
+		if(proposalDTO.getNumberOfMonthlyInstallments() < 24 || proposalDTO.getNumberOfMonthlyInstallments() > 180) {
+			return false; //• O empréstimo deve ser pago em no mínimo 2 anos e no máximo 15 anos
+		}
+		
+		boolean isValid = true;
+
+		isValid = processWarrantyMessages(proposalDTO);
+		
+		if(!isValid) {
+			return false;
+		}
+		
+		isValid = processProponentMessages(proposalDTO);
+		
+		return isValid;
+	}
+	
+	/**
+	 * Executa as validações necessárias para as mensagens que sejam the Proponent
+	 * @param String
+	 * */
+	private static boolean processProponentMessages(ProposalDTO proposalDTO) {
+		if(!(proposalDTO.getProponentList().size() == 2)) {
+			return false; //•Deve haver no mínimo 2 proponentes por proposta
+		}else {
+			List<ProponentDTO> mainProponent = new ArrayList<ProponentDTO>();
+			for(ProponentDTO dto : proposalDTO.getProponentList()) {
+				if (dto.getProponentAge() < 18) {
+					return false; //•Todos os proponentes devem ser maiores de 18 anos
+				}
+				if(dto.isMainProponent()) {
+					mainProponent.add(dto);
+				}
+			}
+			
+			if(mainProponent.isEmpty() ||mainProponent.size() > 1) {
+				return false; //•Deve haver exatamente 1 proponente principal por proposta
+			}else {
+				ProponentDTO dto = mainProponent.get(0);
+				double parcelaMensal = proposalDTO.getProposalLoanValue() / proposalDTO.getNumberOfMonthlyInstallments();
+				
+				if(dto.getProponentAge() >= 18 && dto.getProponentAge() <= 24 && !(dto.getProponentMonthlyIncome() >= parcelaMensal*4)) {
+					return false; // renda do proponente deve ser 4 vezes o valor da parcela do empréstimo, se a idade dele for entre 18 e 24 anos
+				}
+				if(dto.getProponentAge() >= 24 && dto.getProponentAge() <= 50 && !(dto.getProponentMonthlyIncome() >= parcelaMensal*3)) {
+					return false; // renda do proponente deve ser 4 vezes o valor da parcela do empréstimo, se a idade dele for entre 24 e 50 anos
+				}
+				
+				if(dto.getProponentAge() >= 50 && !(dto.getProponentMonthlyIncome() >= parcelaMensal*2)) {
+					return false; // renda do proponente deve ser 4 vezes o valor da parcela do empréstimo, se a idade dele for acima de 50 anos
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Executa as validações necessárias para as mensagens que sejam the Warranty
+	 * @param String
+	 * */
+	private static boolean processWarrantyMessages(ProposalDTO proposalDTO) {
+		
+		if(proposalDTO.getWarrantyList().isEmpty()) {
+			return false; //•Dever haver no mínimo 1 garantia de imóvel por proposta
+		}else {
+			double valorGarantias = 0;
+			for(WarrantyDTO dto : proposalDTO.getWarrantyList()) {
+				if(!dto.getEventAction().equalsIgnoreCase("removed")) {
+					valorGarantias += dto.getWarrantyValue();
+				
+					if(dto.getWarrantyProvince().equalsIgnoreCase(PARANA) || dto.getWarrantyProvince().equalsIgnoreCase(SANTA_CATARINA) 
+							|| dto.getWarrantyProvince().equalsIgnoreCase(RIO_GRANDE_DO_SUL)) {
+						return false; //•As garantias de imóvel dos estados PR, SC e RS não são aceitas
+					}
+				}
+			}
+			
+			if(!(valorGarantias >= (proposalDTO.getProposalLoanValue()*2))) {
+				return false; //•O valor das garantias deve ser maior ou igual ao dobro do valor do empréstimo
+			}
+		}
+		return true;
+	}
 }
