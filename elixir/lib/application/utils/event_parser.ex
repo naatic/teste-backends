@@ -1,4 +1,4 @@
-defmodule LoanHandler.Application.EventParser do
+defmodule LoanHandler.Application.Utils.EventParser do
   alias LoanHandler.Application.Domain.Warranty
   alias LoanHandler.Application.Domain.Proponent
   alias LoanHandler.Application.Domain.Proposal

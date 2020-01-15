@@ -1,6 +1,6 @@
-defmodule LoanHandler.Application.MessageProcessor do
-  alias LoanHandler.Application.EventParser
-  alias LoanHandler.Application.LoansEventHandler
+defmodule LoanHandler.Application.Service.MessageProcessorService do
+  alias LoanHandler.Application.Utils.EventParser
+  alias LoanHandler.Application.Service.LoanService
 
   def process([head | tail]) do
     process([head | tail], %{proposals: [], warranties: [], proponents: []}, [])
@@ -15,12 +15,12 @@ defmodule LoanHandler.Application.MessageProcessor do
     parsed_event = EventParser.parse_event(head)
     processed_events ++ [parsed_event]
 
-    unless is_event_already_processed?(parsed_event, processed_events) and
-            is_update_request_late?(parsed_event, processed_events) do
-      process(tail, LoansEventHandler.handle_event(loans, parsed_event), processed_events)
+    unless is_event_already_processed?(parsed_event, processed_events)
+           and is_update_request_late?(parsed_event, processed_events) do
+      process(tail, LoanService.handle_event(loans, parsed_event), processed_events)
     else
       #se o evento já tiver sido processado ou estiver atrasado, chama-se o process novamente
-      #utilizando a tail da lista
+      #sem adicionar na lista de processed events
       process(tail, loans, processed_events)
     end
   end
@@ -54,4 +54,5 @@ defmodule LoanHandler.Application.MessageProcessor do
       false
     end
   end
+
 end
