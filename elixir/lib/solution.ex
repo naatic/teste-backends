@@ -21,7 +21,7 @@ defmodule Solution do
 
     unless Enum.empty?(loans.proposals) do
       Enum.filter(loans.proposals, fn proposal ->
-        ProposalService.is_proposal_valid?(loans, proposal)
+        ProposalService.is_data_valid?(loans, proposal)
       end)
       |> Enum.map(fn prop -> prop.proposal_id end)
       |> Enum.join(",")
