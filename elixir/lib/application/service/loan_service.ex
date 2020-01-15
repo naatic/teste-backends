@@ -23,15 +23,19 @@ defmodule LoanHandler.Application.Service.LoanService do
   end
 
   defp update_action(loans, event) do
+    case event.event_schema do
       "proposal"  -> %{ loans | proposals:  ProposalRepository.update_proposal(loans.proposals, event.event_properties)}
       "proponent" -> %{ loans | proponents: ProponentRepository.update_proponent(loans.proponents, event.event_properties)}
       "warranty"  -> %{ loans | warranties: WarrantyRepository.update_warranty(loans.warranties, event.event_properties)}
+    end
   end
 
   defp delete_action(loans, event) do
-    "proposal"  -> %{ loans | proposals:  ProposalRepository.delete_proposal(loans.proposals, event.event_properties)}
-    "proponent" -> %{ loans | proponents: ProponentRepository.delete_proponent(loans.proponents, event.event_properties)}
-    "warranty"  -> %{ loans | warranties: WarrantyRepository.delete_warranty(loans.warranties, event.event_properties)}
+    case event.event_schema do
+      "proposal"  -> %{ loans | proposals:  ProposalRepository.delete_proposal(loans.proposals, event.event_properties)}
+      "proponent" -> %{ loans | proponents: ProponentRepository.delete_proponent(loans.proponents, event.event_properties)}
+      "warranty"  -> %{ loans | warranties: WarrantyRepository.delete_warranty(loans.warranties, event.event_properties)}
+    end
   end
 
 end

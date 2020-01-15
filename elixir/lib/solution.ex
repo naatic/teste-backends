@@ -17,7 +17,7 @@ defmodule Solution do
 
   @spec solution(list) :: String.t()
   def solution(messages) do
-    loans = MessageProcessor.process(messages)
+    loans = MessageProcessorService.process(messages)
 
     unless Enum.empty?(loans.proposals) do
       Enum.filter(loans.proposals, fn proposal ->
