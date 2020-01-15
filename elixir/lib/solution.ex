@@ -1,4 +1,5 @@
 defmodule Solution do
+  alias LoanHandler.Application.MessageProcessor
 
   @doc """
   // Essa função recebe uma lista de mensagens, por exemplo:
@@ -16,7 +17,7 @@ defmodule Solution do
 
   @spec solution(list) :: String.t()
   def solution(messages) do
-    loans = LoanHandler.Application.QueueProcessor.process(messages)
+    loans = MessageProcessor.process(messages)
 
     unless Enum.empty?(loans.proposals) do
       Enum.filter(loans.proposals, fn proposal ->

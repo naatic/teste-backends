@@ -10,7 +10,15 @@ defmodule LoanHandler.Application.LoansEventHandler do
     end
   end
 
-  defp add_action do
+  defp add_action(loans, event) do
+
+  end
+
+  defp update_action(loans, event) do
+
+  end
+
+  defp delete_action(loans, event) do
 
   end
 
