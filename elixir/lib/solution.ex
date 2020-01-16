@@ -1,6 +1,6 @@
 defmodule Solution do
   alias LoanHandler.Application.Service.MessageProcessorService
-  alias LoanHandler.Application.Service.ProposalService
+  alias LoanHandler.Application.Service.LoanService
   @doc """
   // Essa função recebe uma lista de mensagens, por exemplo:
   //
@@ -21,7 +21,7 @@ defmodule Solution do
 
     unless Enum.empty?(loans.proposals) do
       Enum.filter(loans.proposals, fn proposal ->
-        ProposalService.is_data_valid?(loans, proposal)
+        LoanService.is_data_valid?(loans, proposal)
       end)
       |> Enum.map(fn prop -> prop.proposal_id end)
       |> Enum.join(",")
