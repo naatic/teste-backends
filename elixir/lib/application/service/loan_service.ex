@@ -1,13 +1,14 @@
 defmodule LoanHandler.Application.Service.LoanService do
 
-  alias LoanHandler.Application.Repository.ProponentRepository
-  alias LoanHandler.Application.Repository.WarrantyRepository
-  alias LoanHandler.Application.Repository.ProposalRepository
+  alias LoanHandler.Application.Repository.DataRepository
+
   alias LoanHandler.Application.Service.ProponentService
   alias LoanHandler.Application.Service.ProposalService
   alias LoanHandler.Application.Service.WarrantyService
 
-
+  @doc """
+    inserts the event in the proposal list based on type
+  """
   def handle_event(loans, event) do
     case event.event_action do
       "added" -> add_action(loans, event)
@@ -18,6 +19,9 @@ defmodule LoanHandler.Application.Service.LoanService do
     end
   end
 
+  @doc """
+    does the complete validation of the data received
+  """
   def is_data_valid?(loans, proposal) do
 
     proponents_list = Enum.filter(loans.proponents, fn proponent ->
@@ -37,27 +41,36 @@ defmodule LoanHandler.Application.Service.LoanService do
       Enum.all?(proposal_validation, fn response -> response == true end)
   end
 
+  @doc """
+    adds the action to the loans list based on the event_schema received
+  """
   defp add_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  ProposalRepository.add_proposal(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: ProponentRepository.add_proponent(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: WarrantyRepository.add_warranty(loans.warranties, event.event_properties)}
+      "proposal"  -> %{ loans | proposals:  DataRepository.add(loans.proposals, event.event_properties)}
+      "proponent" -> %{ loans | proponents: DataRepository.add(loans.proponents, event.event_properties)}
+      "warranty"  -> %{ loans | warranties: DataRepository.add(loans.warranties, event.event_properties)}
     end
   end
 
+  @doc """
+    updates the action inside the loans list based on the event_schema received
+  """
   defp update_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  ProposalRepository.update_proposal(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: ProponentRepository.update_proponent(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: WarrantyRepository.update_warranty(loans.warranties, event.event_properties)}
+      "proposal"  -> %{ loans | proposals:  DataRepository.update(loans.proposals, event.event_properties)}
+      "proponent" -> %{ loans | proponents: DataRepository.update(loans.proponents, event.event_properties)}
+      "warranty"  -> %{ loans | warranties: DataRepository.update(loans.warranties, event.event_properties)}
     end
   end
 
+  @doc """
+    deletes the action from the loans list based on the event_schema received
+  """
   defp delete_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  ProposalRepository.delete_proposal(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: ProponentRepository.delete_proponent(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: WarrantyRepository.delete_warranty(loans.warranties, event.event_properties)}
+      "proposal"  -> %{ loans | proposals:  DataRepository.delete(loans.proposals, event.event_properties)}
+      "proponent" -> %{ loans | proponents: DataRepository.delete(loans.proponents, event.event_properties)}
+      "warranty"  -> %{ loans | warranties: DataRepository.delete(loans.warranties, event.event_properties)}
     end
   end
 
