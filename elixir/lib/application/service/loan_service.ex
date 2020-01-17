@@ -32,13 +32,13 @@ defmodule LoanHandler.Application.Service.LoanService do
                         warranty.proposal_id == proposal.proposal_id
                       end)
 
-      proponent_validation = ProponentService.is_proponents_valid?(proponents_list, proposal)
-      warranty_validation = WarrantyService.is_warranties_valid?(warranties_list, proposal)
+    validations = [
+      proponent_validation = ProponentService.is_proponents_valid?(proponents_list, proposal),
+      warranty_validation = WarrantyService.is_warranties_valid?(warranties_list, proposal),
       proposal_validation = ProposalService.is_proposal_valid?(proposal)
+    ]
 
-      Enum.all?(proponent_validation, fn response -> response == true end) and
-      Enum.all?(warranty_validation, fn response -> response == true end) and
-      Enum.all?(proposal_validation, fn response -> response == true end)
+      Enum.all?(validations, fn response -> response == true end)
   end
 
   @doc """

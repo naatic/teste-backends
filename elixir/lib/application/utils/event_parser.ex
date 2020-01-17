@@ -23,7 +23,7 @@ defmodule LoanHandler.Application.Utils.EventParser do
     case event.event_schema do
       "proposal"  -> %{event | event_properties: parse_proposal(event_properties_list)}
       "proponent" -> %{event | event_properties: parse_proponent(event_properties_list)}
-      "warranty"  -> %{event | event_properties: parse_warranty(event_properties_list)}
+      "warranty"  -> %{event | event_properties: parse_warranty(event_properties_list, event.event_action)}
       _           -> {:error, "Not a valid event"}
     end
   end
@@ -40,9 +40,19 @@ defmodule LoanHandler.Application.Utils.EventParser do
   end
 
   @doc """
+    parses the received warranty to be removed from the event properties
+  """
+  def parse_warranty(warranty_values, "removed") do
+    %Warranty{
+      proposal_id: Enum.at(warranty_values, 0),
+      warranty_id: Enum.at(warranty_values, 1)
+    }
+  end
+
+    @doc """
     parses the received warranty to be inserted in the event properties
   """
-  def parse_warranty(warranty_values) do
+  def parse_warranty(warranty_values, _) do
     %Warranty{
       proposal_id: Enum.at(warranty_values, 0),
       warranty_id: Enum.at(warranty_values, 1),

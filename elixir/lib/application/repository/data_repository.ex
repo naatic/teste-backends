@@ -11,7 +11,8 @@ defmodule LoanHandler.Application.Repository.DataRepository do
     Generic method to delete the event in the event list
   """
   def delete(event_list, event_properties) do
-    List.delete(event_list, event_properties)
+    event = Enum.find(event_list, fn e -> e.proposal_id == event_properties.proposal_id end)
+    List.delete(event_list, event)
   end
 
   @doc """
