@@ -1,4 +1,5 @@
 defmodule LoanHandler.Application.Utils.EventParser do
+  @moduledoc false
   alias LoanHandler.Application.Domain.Warranty
   alias LoanHandler.Application.Domain.Proponent
   alias LoanHandler.Application.Domain.Proposal
@@ -10,21 +11,28 @@ defmodule LoanHandler.Application.Utils.EventParser do
     event_as_list = String.split(event, ",")
 
     event = %{
-      event_id:         Enum.at(event_as_list, 0),
-      event_schema:     Enum.at(event_as_list, 1),
-      event_action:     Enum.at(event_as_list, 2),
-      event_timestamp:  Enum.at(event_as_list, 3),
+      event_id: Enum.at(event_as_list, 0),
+      event_schema: Enum.at(event_as_list, 1),
+      event_action: Enum.at(event_as_list, 2),
+      event_timestamp: Enum.at(event_as_list, 3),
       event_properties: nil
     }
 
-    #Enum.drop vai dividir minha lista, formando uma nova a partir da posição 4 da atual
+    # Enum.drop vai dividir minha lista, formando uma nova a partir da posição 4 da atual
     event_properties_list = Enum.drop(event_as_list, 4)
 
     case event.event_schema do
-      "proposal"  -> %{event | event_properties: parse_proposal(event_properties_list)}
-      "proponent" -> %{event | event_properties: parse_proponent(event_properties_list)}
-      "warranty"  -> %{event | event_properties: parse_warranty(event_properties_list, event.event_action)}
-      _           -> {:error, "Not a valid event"}
+      "proposal" ->
+        %{event | event_properties: parse_proposal(event_properties_list)}
+
+      "proponent" ->
+        %{event | event_properties: parse_proponent(event_properties_list)}
+
+      "warranty" ->
+        %{event | event_properties: parse_warranty(event_properties_list, event.event_action)}
+
+      _ ->
+        {:error, "Not a valid event"}
     end
   end
 
@@ -49,7 +57,7 @@ defmodule LoanHandler.Application.Utils.EventParser do
     }
   end
 
-    @doc """
+  @doc """
     parses the received warranty to be inserted in the event properties
   """
   def parse_warranty(warranty_values, _) do
@@ -74,5 +82,4 @@ defmodule LoanHandler.Application.Utils.EventParser do
       proponent_is_main: String.to_atom(Enum.at(proponent_values, 5)) == true
     }
   end
-
 end

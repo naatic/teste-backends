@@ -1,5 +1,5 @@
 defmodule LoanHandler.Application.Repository.DataRepository do
-
+  @moduledoc false
   @doc """
     Generic method to add the event in the event list
   """
@@ -22,5 +22,4 @@ defmodule LoanHandler.Application.Repository.DataRepository do
     delete(event_list, event_properties)
     add(event_list, event_properties)
   end
-
 end

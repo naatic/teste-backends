@@ -1,5 +1,5 @@
 defmodule LoanHandler.Application.Service.LoanService do
-
+  @moduledoc false
   alias LoanHandler.Application.Repository.DataRepository
 
   alias LoanHandler.Application.Service.ProponentService
@@ -23,14 +23,15 @@ defmodule LoanHandler.Application.Service.LoanService do
     does the complete validation of the data received
   """
   def is_data_valid?(loans, proposal) do
+    proponents_list =
+      Enum.filter(loans.proponents, fn proponent ->
+        proponent.proposal_id == proposal.proposal_id
+      end)
 
-    proponents_list = Enum.filter(loans.proponents, fn proponent ->
-                        proponent.proposal_id == proposal.proposal_id
-                      end)
-
-    warranties_list = Enum.filter(loans.warranties, fn warranty ->
-                        warranty.proposal_id == proposal.proposal_id
-                      end)
+    warranties_list =
+      Enum.filter(loans.warranties, fn warranty ->
+        warranty.proposal_id == proposal.proposal_id
+      end)
 
     validations = [
       proponent_validation = ProponentService.is_proponents_valid?(proponents_list, proposal),
@@ -38,7 +39,7 @@ defmodule LoanHandler.Application.Service.LoanService do
       proposal_validation = ProposalService.is_proposal_valid?(proposal)
     ]
 
-      Enum.all?(validations, fn response -> response == true end)
+    Enum.all?(validations, fn response -> response == true end)
   end
 
   @doc """
@@ -46,9 +47,14 @@ defmodule LoanHandler.Application.Service.LoanService do
   """
   defp add_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  DataRepository.add(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: DataRepository.add(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: DataRepository.add(loans.warranties, event.event_properties)}
+      "proposal" ->
+        %{loans | proposals: DataRepository.add(loans.proposals, event.event_properties)}
+
+      "proponent" ->
+        %{loans | proponents: DataRepository.add(loans.proponents, event.event_properties)}
+
+      "warranty" ->
+        %{loans | warranties: DataRepository.add(loans.warranties, event.event_properties)}
     end
   end
 
@@ -57,9 +63,14 @@ defmodule LoanHandler.Application.Service.LoanService do
   """
   defp update_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  DataRepository.update(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: DataRepository.update(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: DataRepository.update(loans.warranties, event.event_properties)}
+      "proposal" ->
+        %{loans | proposals: DataRepository.update(loans.proposals, event.event_properties)}
+
+      "proponent" ->
+        %{loans | proponents: DataRepository.update(loans.proponents, event.event_properties)}
+
+      "warranty" ->
+        %{loans | warranties: DataRepository.update(loans.warranties, event.event_properties)}
     end
   end
 
@@ -68,11 +79,14 @@ defmodule LoanHandler.Application.Service.LoanService do
   """
   defp delete_action(loans, event) do
     case event.event_schema do
-      "proposal"  -> %{ loans | proposals:  DataRepository.delete(loans.proposals, event.event_properties)}
-      "proponent" -> %{ loans | proponents: DataRepository.delete(loans.proponents, event.event_properties)}
-      "warranty"  -> %{ loans | warranties: DataRepository.delete(loans.warranties, event.event_properties)}
+      "proposal" ->
+        %{loans | proposals: DataRepository.delete(loans.proposals, event.event_properties)}
+
+      "proponent" ->
+        %{loans | proponents: DataRepository.delete(loans.proponents, event.event_properties)}
+
+      "warranty" ->
+        %{loans | warranties: DataRepository.delete(loans.warranties, event.event_properties)}
     end
   end
-
-
 end
