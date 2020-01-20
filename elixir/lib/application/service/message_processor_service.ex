@@ -15,13 +15,13 @@ defmodule LoanHandler.Application.Service.MessageProcessorService do
     parsed_event = EventParser.parse_event(head)
     processed_events ++ [parsed_event]
 
-    if is_event_already_processed?(parsed_event, processed_events) or
+    unless is_event_already_processed?(parsed_event, processed_events) and
              is_update_request_late?(parsed_event, processed_events) do
+      do_process(tail, LoanService.handle_event(loans, parsed_event), processed_events)
+    else
       # se o evento já tiver sido processado ou estiver atrasado, chama-se o process novamente
       # sem adicionar na lista de processed events
       do_process(tail, loans, processed_events)
-    else
-      do_process(tail, LoanService.handle_event(loans, parsed_event), processed_events)
     end
   end
 
